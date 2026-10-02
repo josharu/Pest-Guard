@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pest Solutions - PestGuard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Chatbot Styles */
+.chat-container {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 350px;
+    max-width: 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    overflow: hidden;
+    z-index: 1000;
+    display: none;
+}
+
+.chat-container.active {
+    display: block;
+}
+
+.chat-header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.chat-header img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.chat-box {
+    height: 300px;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #fafafa;
+}
+
+.chat-message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bot-message {
+    align-items: flex-start;
+}
+
+.user-message {
+    align-items: flex-end;
+}
+
+.message-content {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 5px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.bot-message .message-content {
+    background-color: #f1f1f1;
+    color: #333;
+    border-bottom-left-radius: 5px;
+}
+
+.user-message .message-content {
+    background-color: #4CAF50;
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #777;
+}
+
+.chat-input {
+    display: flex;
+    padding: 10px;
+    background-color: #eee;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 30px;
+    outline: none;
+    font-size: 14px;
+}
+
+.chat-input button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.chat-input button:hover {
+    background-color: #45a049;
+}
+
+.quick-options {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+}
+
+.quick-option {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 6px 12px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.quick-option:hover {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.chat-toggle i {
+    font-size: 24px;
+}
+
+/* Typing indicator */
+.typing-indicator {
+    display: flex;
+    padding: 10px 15px;
+    background-color: #f1f1f1;
+    border-radius: 18px;
+    margin-bottom: 15px;
+    width: fit-content;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #666;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typingAnimation 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingAnimation {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-5px);
+    }
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        width: 90%;
+        right: 5%;
+        bottom: 70px;
+    }
+    
+    .chat-box {
+        height: 250px;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container container">
+            <div class="logo">
+                <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Semicircle Head (lowered closer to body) -->
+                    <path d="M28 26 A4 4 0 0 1 36 26" fill="#4CAF50"/>
+                
+                    <!-- Round Body -->
+                    <circle cx="32" cy="36" r="10" fill="#4CAF50"/>
+                
+                    <!-- Center Line -->
+                    <line x1="32" y1="28" x2="32" y2="48" stroke="black" stroke-width="1.5"/>
+                
+                    <!-- Compact Left Legs -->
+                    <path d="M26 30 Q20 28 20 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 36 Q18 36 18 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 42 Q20 44 20 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                
+                    <!-- Compact Right Legs -->
+                    <path d="M38 30 Q44 28 44 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 36 Q46 36 46 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 42 Q44 44 44 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                  </svg>
+                <span>PestGuard</span>
+            </div>
+            <nav>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="identify.html" class="nav-link">Identify</a></li>
+                    <li><a href="solutions.html" class="nav-link active">Solutions</a></li>
+                    <li><a href="resources.html" class="nav-link">Resources</a></li>
+                    <li><a href="auth.html" class="nav-link">Login/Sign Up</a></li>
+                    <li><a href="aboutus.html" class="nav-link active">About Us</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Solutions Section -->
+    <section class="section" id="solutions" style="display: block; padding-top: 120px;">
+        <div class="container">
+            <h2 class="section-title scroll-animation">Professional Services</h2>
+            <div class="solutions-grid">
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">1. Severe Infestation</h3>
+                    <p class="solution-card-description">When the pest problem is too large to handle with DIY methods.</p>
+
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">2. Recurring Pest Issues </h3>
+                    <p class="solution-card-description"> If pests keep coming back despite repeated treatments.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">3.Structural Damage </h3>
+                    <p class="solution-card-description">When pests like termites or carpenter ants cause damage to walls, floors, or furniture.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">4. Health Risks</h3>
+                    <p class="solution-card-description">If pests pose health hazards, such as rodents spreading diseases or venomous spiders in the home.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">5. Large-Scale Commercial Infestations   </h3>
+                    <p class="solution-card-description">Businesses, restaurants, and warehouses require professional extermination for compliance and safety.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">6. Hidden Pest Nests</h3>
+                    <p class="solution-card-description"> Professionals can locate and eliminate nests in hard-to-reach areas like walls, attics, and basements.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">7. Dangerous Pests</h3>
+                    <p class="solution-card-description">For aggressive pests like wasps, hornets, and venomous insects, experts have the right protective equipment and methods.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">8. Humane Wildlife Removal </h3>
+                    <p class="solution-card-description">  When dealing with raccoons, bats, or squirrels, pest control services can safely remove and relocate them.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">9. Bed Bug Outbreaks </h3>
+                    <p class="solution-card-description">  Bed bugs spread quickly and require specialized heat or chemical treatments.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">10. Eco-Friendly & Safe Treatments  </h3>
+                    <p class="solution-card-description">Professionals offer non-toxic, pet-safe, and eco-friendly pest control options.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">11. Legal or Rental Requirements </h3>
+                    <p class="solution-card-description">Landlords and property managers may require certified pest control services for tenant safety.</p>
+                </div>
+                <div class="solution-card card scroll-animation">
+                    <div class="solution-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="solution-card-title">12. Pest Identification & Prevention Plans</h3>
+                    <p class="solution-card-description">Experts can assess risks, identify pest species, and implement long-term prevention strategies.</p>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>About PestGuard</h3>
+                    <p>We're dedicated to helping you identify and manage pests effectively while protecting your home and garden.</p>
+                    <div class="footer-social">
+                        <a target="_blank" href="https://www.facebook.com/share/1ALYRfUUnJ/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href="https://x.com/?lang=en" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a target="_blank" href="https://www.instagram.com/pest.guard_?igsh=MTd1ZmpndGFkMGF2ag==" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://in.linkedin.com/" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="identify.html">Identify Pests</a></li>
+                        <li><a href="solutions.html">Solutions</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="auth.html">Login/Sign Up</a></li>
+                        <li><a href="aboutus.html">About us </a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@pestguard.com</li>
+                        <li><i class="fas fa-phone"></i> +91 998 754 4262</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Pest Control St, Garden City</li>
+                    </ul>
+                </div>
+               <div class="footer-column">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to our newsletter for the latest pest control tips and updates.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your Email" required><br><br>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PestGuard. All rights reserved.</p>
+            </div>
+        </div>
+                    <!-- Chatbot Elements -->
+    <div class="chat-container hidden" id="chatContainer">
+        <div class="chat-header">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Pest Expert">
+            <h2>Chat with AI Farmer</h2>
+        </div>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="chat-message bot-message">
+                <div class="message-content">
+                    Hello! I'm your pest identification assistant. How can I help you today?
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </div>
+        
+        <div class="quick-options">
+            <div class="quick-option" onclick="sendQuickMessage('How to identify bed bugs?')">Bed Bugs</div>
+            <div class="quick-option" onclick="sendQuickMessage('What does a termite look like?')">Termites</div>
+            <div class="quick-option" onclick="sendQuickMessage('How to get rid of ants?')">Ants</div>
+            <div class="quick-option" onclick="sendQuickMessage('What are signs of cockroaches?')">Cockroaches</div>
+            <div class="quick-option" onclick="sendQuickMessage('How to prevent rodents?')">Rodents</div>
+            <div class="quick-option" onclick="sendQuickMessage('Help with spider identification')">Spiders</div>
+        </div>
+        
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Describe your pest problem..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+    <div class="chat-toggle" id="chatToggle" onclick="toggleChat()">
+        <i class="fas fa-bug"></i>
+    </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Check for scroll animations
+        window.addEventListener('load', checkScroll);
+        window.addEventListener('scroll', checkScroll);
+        // Chatbot functionality
+function toggleChat() {
+    const chatContainer = document.getElementById('chatContainer');
+    const chatToggle = document.getElementById('chatToggle');
+    
+    chatContainer.classList.toggle('active');
+    chatToggle.innerHTML = chatContainer.classList.contains('active') ? 
+        '<i class="fas fa-times"></i>' : '<i class="fas fa-bug"></i>';
+}
+
+function sendMessage() {
+    const userInput = document.getElementById('userInput');
+    const message = userInput.value.trim();
+    
+    if (message !== '') {
+        addUserMessage(message);
+        userInput.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Simulate bot response after a delay
+        setTimeout(() => {
+            removeTypingIndicator();
+            const botResponse = getBotResponse(message);
+            addBotMessage(botResponse);
+            
+            // Scroll to bottom
+            const chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 1500);
+    }
+}
+
+function sendQuickMessage(message) {
+    addUserMessage(message);
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Simulate bot response after a delay
+    setTimeout(() => {
+        removeTypingIndicator();
+        const botResponse = getBotResponse(message);
+        addBotMessage(botResponse);
+        
+        // Scroll to bottom
+        const chatBox = document.getElementById('chatBox');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 1500);
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+function addUserMessage(message) {
+    const chatBox = document.getElementById('chatBox');
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user-message';
+    messageDiv.innerHTML = `
+        <div class="message-content">${message}</div>
+        <div class="message-time">${timeString}</div>
+    `;
+    
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function addBotMessage(message) {
+    const chatBox = document.getElementById('chatBox');
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message bot-message';
+    messageDiv.innerHTML = `
+        <div class="message-content">${message}</div>
+        <div class="message-time">${timeString}</div>
+    `;
+    
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const chatBox = document.getElementById('chatBox');
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    `;
+    
+    chatBox.appendChild(typingDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+function getBotResponse(userMessage) {
+    // Convert user message to lowercase for easier matching
+    const message = userMessage.toLowerCase();
+    
+    // Pest identification responses
+    if (message.includes('bed bug') || message.includes('bedbug')) {
+        return "Bed bugs are small, oval, brownish insects that feed on blood. Adults are about the size of an apple seed (5-7mm). They often leave small blood stains on sheets and have a musty odor. Look for them in mattress seams, bed frames, and nearby furniture.";
+    } else if (message.includes('termite')) {
+        return "Termites are pale, soft-bodied insects about 1/4 to 1/2 inch long. Worker termites are cream colored, while swarmers are darker with wings. Signs include mud tubes on walls, hollow-sounding wood, and discarded wings near windowsills.";
+    } else if (message.includes('ant')) {
+        return "Ants vary by species but generally have three body parts and bent antennae. Common types include: 1) Carpenter ants (large, black) that damage wood, 2) Odorous house ants (small, brown) that smell when crushed, and 3) Pavement ants (small, dark brown) often seen on sidewalks.";
+    } else if (message.includes('cockroach') || message.includes('roach')) {
+        return "Common cockroaches include: 1) German cockroach (light brown, 1/2-5/8\", two dark stripes), 2) American cockroach (reddish-brown, 1-1.5\", winged), and 3) Oriental cockroach (dark brown/black, 1\"). Signs include droppings (like coffee grounds), egg cases, and a musty odor.";
+    } else if (message.includes('rodent') || message.includes('mouse') || message.includes('rat')) {
+        return "Rodent signs include: 1) Droppings (mouse droppings are 1/4\" rice-shaped, rat droppings are 1/2\" sausage-shaped), 2) Gnaw marks, 3) Grease marks along walls, 4) Scratching noises at night. Mice have pointed noses and large ears, while rats are larger with more blunt noses.";
+    } else if (message.includes('spider')) {
+        return "Most spiders are harmless, but watch for: 1) Black widow (shiny black with red hourglass), 2) Brown recluse (light brown with violin marking). Other common house spiders vary in color and size. Spiders have two body segments and eight legs. Webs indicate activity areas.";
+    } else if (message.includes('identif') || message.includes('what is this')) {
+        return "For identification, please describe: 1) Size (in inches/mm), 2) Color, 3) Shape, 4) Number of legs, 5) Where you found it, and 6) Any damage you've noticed. You can also upload a photo if available (feature coming soon).";
+    } else if (message.includes('get rid of') || message.includes('eliminate') || message.includes('remove')) {
+        return "General pest elimination steps: 1) Identify the pest correctly, 2) Locate entry points and seal them, 3) Remove food/water sources, 4) Use appropriate traps or treatments (varies by pest), 5) Monitor and repeat as needed. For specific solutions, tell me which pest you're dealing with.";
+    } else if (message.includes('prevent') || message.includes('stop')) {
+        return "Pest prevention tips: 1) Seal cracks and openings, 2) Keep food in sealed containers, 3) Fix leaky pipes, 4) Regularly empty trash, 5) Trim vegetation away from buildings, 6) Store firewood away from home, 7) Keep areas clean and clutter-free. Specific pests may need additional measures.";
+    } else if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
+        return "Hello! I'm here to help with all your pest identification and solution needs. You can describe a pest you've seen, ask about signs of infestation, or request prevention tips. How can I assist you today?";
+    } else {
+        // Default response if no specific match
+        return "I'm here to help with pest identification and solutions. Could you please provide more details about: 1) The pest's appearance, 2) Where you found it, and 3) Any problems it's causing? This will help me give you more accurate information.";
+    }
+}
+
+// Initialize chat with a welcome message if empty
+document.addEventListener('DOMContentLoaded', function() {
+    const chatBox = document.getElementById('chatBox');
+    if (chatBox && chatBox.children.length <= 1) { // Only the initial message is present
+        setTimeout(() => {
+            addBotMessage("You can click the quick options below or type your pest-related question. I can help with identification, solutions, and prevention tips!");
+        }, 1000);
+    }
+});
+    </script>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

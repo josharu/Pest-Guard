@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - PestGuard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Contact Page Specific Styles */
+        .contact-hero {
+            background-color: rgba(76, 175, 80, 0.1);
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+
+        .contact-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            margin: 50px 0;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .contact-item i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-right: 15px;
+            margin-top: 5px;
+        }
+
+        .contact-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .contact-form {
+            background-color: var(--card-light);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .map-container {
+            margin-top: 50px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            height: 400px;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .social-connect {
+            text-align: center;
+            margin: 50px 0;
+        }
+
+        .social-connect h2 {
+            margin-bottom: 20px;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-icon-large {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            transition: var(--transition);
+        }
+
+        .social-icon-large:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .green-divider {
+            height: 4px;
+            width: 80px;
+            background-color: var(--primary);
+            margin: 0 auto 30px;
+            border-radius: 2px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 992px) {
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container container">
+            <div class="logo">
+                <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Semicircle Head (lowered closer to body) -->
+                    <path d="M28 26 A4 4 0 0 1 36 26" fill="#4CAF50"/>
+                
+                    <!-- Round Body -->
+                    <circle cx="32" cy="36" r="10" fill="#4CAF50"/>
+                
+                    <!-- Center Line -->
+                    <line x1="32" y1="28" x2="32" y2="48" stroke="black" stroke-width="1.5"/>
+                
+                    <!-- Compact Left Legs -->
+                    <path d="M26 30 Q20 28 20 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 36 Q18 36 18 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 42 Q20 44 20 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                
+                    <!-- Compact Right Legs -->
+                    <path d="M38 30 Q44 28 44 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 36 Q46 36 46 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 42 Q44 44 44 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                  </svg>
+                <span>PestGuard</span>
+            </div>
+            <nav>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="identify.html" class="nav-link">Identify</a></li>
+                    <li><a href="solutions.html" class="nav-link">Solutions</a></li>
+                    <li><a href="resources.html" class="nav-link">Resources</a></li>
+                    <li><a href="auth.html" class="nav-link">Login/Sign Up</a></li>
+                    <li><a href="aboutus.html" class="nav-link active">About Us</a></li>
+                    
+                </ul>
+            </nav>
+            <button class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contact Hero Section -->
+    <section class="contact-hero" style="display: block; padding-top: 120px;">
+        <div class="container">
+            <h1 class="section-title">Get In Touch</h1>
+            <p class="contact-subtitle">Have questions about pest identification or management? We're here to help!</p>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="contact-form">
+        <div class="container">
+            <div class="contact-container">
+                <div class="contact-info scroll-animation">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h3>Our Location</h3>
+                            <p>123 Pest Control St, Garden City</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email Us</h3>
+                            <p>info@pestguard.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Call Us</h3>
+                            <p>+91 998 754 4262</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h3>Working Hours</h3>
+                            <p>Monday - Friday: 9am - 5pm</p>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form scroll-animation" id="contactForm">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Your Name</label>
+                        <input type="text" id="name" class="form-input" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label">Your Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" id="subject" class="form-input" placeholder="What is this regarding?">
+                    </div>
+                    <div class="form-group">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea id="message" class="form-input" placeholder="How can we help you?" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary form-button">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-container">
+        <div class="container">
+            <div class="section-header">
+                <h2>Find Us</h2>
+                <div class="green-divider"></div>
+            </div>
+            <div class="map-container scroll-animation">
+                <iframe 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3914.632869582153!2d76.90028401533553!3d10.900273692234986!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85c9627636957%3A0xce7f4c16191e9f57!2sAmrita%20School%20of%20Engineering!5e0!3m2!1sen!2sin!4v1712704652000!5m2!1sen!2sin" 
+                  width="100%" 
+                  height="450" 
+                  style="border:0;" 
+                  allowfullscreen="" 
+                  loading="lazy" 
+                  referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
+              
+        </div>
+    </section>
+
+    <!-- Social Connect Section -->
+    <section class="social-connect">
+        <div class="container">
+            <div class="social-connect scroll-animation">
+                <div class="section-header">
+                    <h2>Connect With Us</h2>
+                    <div class="green-divider"></div>
+                </div>
+                <p>Follow us on social media for the latest pest management tips and updates</p>
+                <p> </p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/1ALYRfUUnJ/" class="social-icon-large"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon-large"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/pest.guard_?igsh=MTd1ZmpndGFkMGF2ag==" class="social-icon-large"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon-large"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-container">
+        <div class="container">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <div class="green-divider"></div>
+            </div>
+            <div class="faq-container scroll-animation">
+                <div class="card" style="margin-bottom: 20px; padding: 20px;">
+                    <h3>How quickly will I receive a response to my inquiry?</h3>
+                    <p>We strive to respond to all inquiries within 24-48 hours during business days. For urgent matters, please call our support line directly.</p>
+                </div>
+                <div class="card" style="margin-bottom: 20px; padding: 20px;">
+                    <h3>Do you offer on-site pest identification services?</h3>
+                    <p>While our platform is primarily digital, we can connect you with local pest management professionals in your area who offer on-site services.</p>
+                </div>
+                <div class="card" style="margin-bottom: 20px; padding: 20px;">
+                    <h3>How can I contribute to your pest identification database?</h3>
+                    <p>We welcome contributions from entomologists, pest management professionals, and knowledgeable enthusiasts. Please contact us through this form with details about your expertise.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>About PestGuard</h3>
+                    <p>We're dedicated to helping you identify and manage pests effectively while protecting your home and garden.</p>
+                    <div class="footer-social">
+                        <a target="_blank" href="https://www.facebook.com/share/1ALYRfUUnJ/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href="https://x.com/?lang=en" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a target="_blank" href="https://www.instagram.com/pest.guard_?igsh=MTd1ZmpndGFkMGF2ag==" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://in.linkedin.com/" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="identify.html">Identify Pests</a></li>
+                        <li><a href="solutions.html">Solutions</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="auth.html">Login/Sign Up</a></li>
+                        <li><a href="aboutus.html">About Us</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@pestguard.com</li>
+                        <li><i class="fas fa-phone"></i> +91 998 754 4262</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Pest Control St, Garden City</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to our newsletter for the latest pest control tips and updates.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your Email" required><br><br>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PestGuard. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Form submission handler
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            // In a real application, you would send this data to your server
+            // For demo purposes, we'll just show an alert
+            alert(`Thank you, ${name}! Your message has been sent. We'll get back to you soon at ${email}.`);
+            
+            // Reset the form
+            this.reset();
+        });
+
+        // Check for scroll animations
+        window.addEventListener('load', checkScroll);
+        window.addEventListener('scroll', checkScroll);
+    </script>
+</body>
+</html>

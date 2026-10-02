@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Sign Up - PestGuard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Auth Container */
+        
+        /* Auth Container - Center the card */
+.auth-container {
+    max-width: 800px;
+    margin: 50px auto; /* Added vertical margin */
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 240px); /* Adjust based on header/footer height */
+}
+
+/* Auth Card - Fixed width and better spacing */
+.auth-card {
+    width: 100%;
+    max-width: 500px; /* Slightly narrower for better readability */
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Adjust section padding */
+#auth {
+    padding: 20px 0;
+    min-height: calc(100vh - 160px); /* Fill remaining viewport height */
+    display: flex;
+    align-items: center;
+}
+        /* Auth Tabs */
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        /* Auth Forms */
+        .auth-form {
+            display: none;
+            padding: 30px;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group .error {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            margin-top: 30px;
+        }
+
+        .form-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #4CAF50;
+            text-decoration: underline;
+        }
+
+        /* OTP Section */
+        #otpSection {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        /* User Profile */
+        .user-profile {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .user-avatar {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .user-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* Dark Theme Styles */
+        .dark-theme .auth-card {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .dark-theme .auth-tabs {
+            border-bottom-color: #333;
+        }
+
+        .dark-theme .auth-tab {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .auth-tab.active {
+            color: #66bb6a;
+            border-bottom-color: #66bb6a;
+        }
+
+        .dark-theme .form-group label {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .form-group input {
+            background-color: #2d2d2d;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .form-link {
+            color: #66bb6a;
+        }
+
+        .dark-theme #otpSection {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .user-profile h2,
+        .dark-theme .user-profile p {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .user-avatar {
+            color: #66bb6a;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 10px;
+            }
+            
+            .auth-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container container">
+            <div class="logo">
+              <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <!-- Semicircle Head (lowered closer to body) -->
+                <path d="M28 26 A4 4 0 0 1 36 26" fill="#4CAF50"/>
+            
+                <!-- Round Body -->
+                <circle cx="32" cy="36" r="10" fill="#4CAF50"/>
+            
+                <!-- Center Line -->
+                <line x1="32" y1="28" x2="32" y2="48" stroke="black" stroke-width="1.5"/>
+            
+                <!-- Compact Left Legs -->
+                <path d="M26 30 Q20 28 20 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M26 36 Q18 36 18 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M26 42 Q20 44 20 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            
+                <!-- Compact Right Legs -->
+                <path d="M38 30 Q44 28 44 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M38 36 Q46 36 46 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M38 42 Q44 44 44 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              </svg>
+                <span>PestGuard</span>
+            </div>
+            <nav>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="identify.html" class="nav-link">Identify</a></li>
+                    <li><a href="solutions.html" class="nav-link">Solutions</a></li>
+                    <li><a href="resources.html" class="nav-link">Resources</a></li>
+                    <li><a href="auth.html" class="nav-link active">Login/Sign Up</a></li>
+                    <li><a href="aboutus.html" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Auth Section -->
+    <section class="section" id="auth" style="display: block; padding-top: 120px;">
+        <div class="container">
+            <h2 class="section-title scroll-animation">Account Access</h2>
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-tabs">
+                        <div class="auth-tab" data-tab="login">Login</div>
+                        <div class="auth-tab" data-tab="signup">Sign Up</div>
+                    </div>
+                    
+                    <!-- Login Form -->
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                            <div id="loginError" class="error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                        </div>
+                        <a href="#" class="form-link" data-tab="signup">Don't have an account? Sign up</a>
+                    </form>
+                    
+                    <!-- Signup Form -->
+                    <form id="signupForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="signupName">Full Name</label>
+                            <input type="text" id="signupName" placeholder="Enter your full name" required>
+                            <div id="nameError" class="error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                            <div id="emailError" class="error"></div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="sendOtp" class="btn btn-secondary" style="width: 100%;">Send OTP</button>
+                        </div>
+                        
+                        <!-- OTP Section -->
+                        <div id="otpSection">
+                            <div class="form-group">
+                                <label for="otp">Enter OTP</label>
+                                <input type="text" id="otp" placeholder="Enter the OTP sent to your email" required>
+                                <div id="otpError" class="error"></div>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" id="verifyOtp" class="btn btn-secondary" style="width: 100%;">Verify OTP</button>
+                                <div id="otpMessage" style="margin-top: 10px; text-align: center;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" placeholder="Create a password" required>
+                            <div id="passwordError" class="error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupConfirmPassword">Confirm Password</label>
+                            <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
+                            <div id="confirmPasswordError" class="error"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+                        </div>
+                        <a href="#" class="form-link" data-tab="login">Already have an account? Login</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>About PestGuard</h3>
+                    <p>We're dedicated to helping you identify and manage pests effectively while protecting your home and garden.</p>
+                    <div class="footer-social">
+                        <a target="_blank" href="https://www.facebook.com/share/1ALYRfUUnJ/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href="https://x.com/?lang=en" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a target="_blank" href="https://www.instagram.com/pest.guard_?igsh=MTd1ZmpndGFkMGF2ag==" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://in.linkedin.com/" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="identify.html">Identify Pests</a></li>
+                        <li><a href="solutions.html">Solutions</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="auth.html">Login/Sign Up</a></li>
+                        <li><a href="aboutus.html">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@pestguard.com</li>
+                        <li><i class="fas fa-phone"></i> +91 998 754 4262</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Pest Control St, Garden City</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to our newsletter for the latest pest control tips and updates.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your Email" required><br><br>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PestGuard. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script src="script.js"></script>
+    <script src="protect-pages.js"></script>
+    <script src="auth.js"></script>
+    <!-- Add this script at the bottom of the file, just before the closing </body> tag -->
+    <script>
+    // Ensure theme toggle works correctly
+    document.addEventListener("DOMContentLoaded", function() {
+      // Apply theme from localStorage
+      const isDarkTheme = localStorage.getItem("theme") === "dark";
+      if (isDarkTheme) {
+        document.body.classList.add("dark-theme");
+      } else {
+        document.body.classList.remove("dark-theme");
+      }
+      
+      // Update icon based on current theme
+      const themeToggle = document.querySelector(".theme-toggle");
+      if (themeToggle) {
+        const icon = themeToggle.querySelector("i");
+        
+        if (isDarkTheme && icon) {
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+        } else if (icon) {
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+        }
+        
+        // Add event listener for theme toggle
+        themeToggle.addEventListener("click", function() {
+          document.body.classList.toggle("dark-theme");
+          const toggleIcon = themeToggle.querySelector("i");
+          
+          if (document.body.classList.contains("dark-theme")) {
+            toggleIcon.classList.remove("fa-moon");
+            toggleIcon.classList.add("fa-sun");
+            localStorage.setItem("theme", "dark");
+          } else {
+            toggleIcon.classList.remove("fa-sun");
+            toggleIcon.classList.add("fa-moon");
+            localStorage.setItem("theme", "light");
+          }
+        });
+      }
+    });
+    </script>
+</body>
+</html>

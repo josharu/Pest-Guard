@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identify Pests - PestGuard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dark-theme .identification-container {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+
+        .dark-theme .upload-text {
+            color: #e0e0e0;
+        }
+
+        .dark-theme #uploadPreview {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .dark-theme .feature-card {
+            background-color: rgba(102, 187, 106, 0.1);
+            border: 1px solid rgba(102, 187, 106, 0.3);
+            color: #f0f0f0;
+        }
+
+        .dark-theme .feature-card:hover {
+            box-shadow: 0 10px 25px rgba(102, 187, 106, 0.2);
+        }
+
+        .dark-theme #instructions {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            border: 1px solid #333;
+        }
+
+        .dark-theme #instructions h3 {
+            color: #66bb6a;
+        }
+
+        /* Chatbot Styles */
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            max-width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            z-index: 1000;
+            display: none;
+        }
+
+        .chat-container.active {
+            display: block;
+        }
+
+        .chat-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .chat-box {
+            height: 300px;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fafafa;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bot-message {
+            align-items: flex-start;
+        }
+
+        .user-message {
+            align-items: flex-end;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 5px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .bot-message .message-content {
+            background-color: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message .message-content {
+            background-color: #4CAF50;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: #eee;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 30px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #45a049;
+        }
+
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+
+        .quick-option {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 6px 12px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .quick-option:hover {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .chat-toggle i {
+            font-size: 24px;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            padding: 10px 15px;
+            background-color: #f1f1f1;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #666;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Identification Section Updates */
+        /* Updated Identification Container */
+        .identification-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px; /* Increased from 800px to 1000px */
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Updated Upload Container */
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Updated Upload Area */
+        .upload-area {
+            width: 100%;
+            min-width: 600px; /* Added minimum width */
+            height: 400px;
+            border: 3px dashed #4CAF50; /* Thicker border */
+            border-radius: 12px; /* More rounded corners */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px; /* Increased margin */
+            position: relative;
+            background-color: rgba(76, 175, 80, 0.05);
+            padding: 20px; /* Added internal padding */
+        }
+
+        .upload-icon {
+            font-size: 4.5rem; /* Increased from 4rem to 4.5rem */
+            color: #4CAF50;
+            margin-bottom: 25px; /* Increased from 20px */
+        }
+
+        .upload-text {
+            font-size: 1.6rem; /* Increased from 1.5rem */
+            text-align: center;
+            color: #555;
+            font-weight: 500; /* Added slight boldness */
+        }
+
+        /* Make preview image larger */
+        #uploadPreview {
+            max-width: 100%;
+            max-height: 380px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* More pronounced shadow */
+        }
+
+        /* Feature cards adjustments for wider layout */
+        .features-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px; /* Increased from 15px */
+            margin-bottom: 40px; /* Increased from 30px */
+            justify-content: center;
+        }
+
+        .feature-card {
+            flex: 1;
+            min-width: 250px; /* Increased from 200px */
+            max-width: 300px;
+            background-color: #e8f5e9;
+            padding: 25px; /* Increased from 20px */
+            border-radius: 12px; /* More rounded corners */
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* More pronounced shadow on hover */
+        }
+
+        /* Responsive adjustments for wider layout */
+        @media (max-width: 1200px) {
+            .identification-container {
+                max-width: 900px;
+            }
+            
+            .upload-area {
+                min-width: 500px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .identification-container {
+                max-width: 800px;
+            }
+            
+            .upload-area {
+                min-width: 450px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .upload-area {
+                height: 350px;
+                min-width: 100%; /* Full width on tablets */
+            }
+            
+            .upload-icon {
+                font-size: 4rem;
+            }
+            
+            .upload-text {
+                font-size: 1.4rem;
+            }
+            
+            .feature-card {
+                min-width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .upload-area {
+                height: 300px;
+                min-width: 100%;
+                border-width: 2px;
+            }
+            
+            .upload-icon {
+                font-size: 3.5rem;
+            }
+            
+            .upload-text {
+                font-size: 1.3rem;
+            }
+        }
+        .upload-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 8px;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        #preview-container {
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        #uploadPreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #instructions {
+            display: none;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        #instructions h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+
+        #instructions ol {
+            padding-left: 20px;
+        }
+
+        #instructions li {
+            margin-bottom: 10px;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        #search-button-container {
+            display: none;
+            margin-top: 15px;
+        }
+
+        #search-button {
+            background-color: #1565c0;
+            width: 100%;
+        }
+
+        #search-button:hover {
+            background-color: #0d47a1;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 90%;
+                right: 5%;
+                bottom: 70px;
+            }
+            
+            .chat-box {
+                height: 250px;
+            }
+
+            .feature-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container container">
+            <div class="logo">
+                <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Semicircle Head (lowered closer to body) -->
+                    <path d="M28 26 A4 4 0 0 1 36 26" fill="#4CAF50"/>
+                
+                    <!-- Round Body -->
+                    <circle cx="32" cy="36" r="10" fill="#4CAF50"/>
+                
+                    <!-- Center Line -->
+                    <line x1="32" y1="28" x2="32" y2="48" stroke="black" stroke-width="1.5"/>
+                
+                    <!-- Compact Left Legs -->
+                    <path d="M26 30 Q20 28 20 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 36 Q18 36 18 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 42 Q20 44 20 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                
+                    <!-- Compact Right Legs -->
+                    <path d="M38 30 Q44 28 44 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 36 Q46 36 46 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 42 Q44 44 44 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                  </svg>
+                <span>PestGuard</span>
+            </div>
+            <nav>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="identify.html" class="nav-link active">Identify</a></li>
+                    <li><a href="solutions.html" class="nav-link">Solutions</a></li>
+                    <li><a href="resources.html" class="nav-link">Resources</a></li>
+                    <li><a href="auth.html" class="nav-link">Login/Sign Up</a></li>
+                    <li><a href="aboutus.html" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Identification Section -->
+    <section class="section" id="identification" style="display: block; padding-top: 120px;">
+        <div class="container">
+            <h2 class="section-title scroll-animation">Pest Identification Tool</h2>
+            <div class="identification-container"><br><br>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Upload & Identify</h3>
+                        <p>Upload a photo of the pest to identify it</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Get Information</h3>
+                        <p>Learn about pest behavior and characteristics</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Find Solutions</h3>
+                        <p>Discover how to control and eliminate pests</p>
+                    </div>
+                </div>
+                
+                <div class="upload-container scroll-animation">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <p class="upload-text">Drag & drop an image or click to browse</p>
+                        <input type="file" id="uploadInput" class="upload-input" accept="image/*">
+                    </div>
+                    
+                    <div id="preview-container">
+                        <img id="uploadPreview" class="upload-preview" alt="Preview">
+                    </div>
+                    
+                    <div id="loader">
+                        <div class="spinner"></div>
+                        <p>Processing image...</p>
+                    </div>
+                    
+                    <button id="identifyBtn" class="btn btn-primary" disabled>Identify Pest</button>
+                </div>
+                <div id="instructions">
+                    <div id="search-button-container">
+                      <button id="search-button" class="btn btn-primary">Search Pest Control Information</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>About PestGuard</h3>
+                    <p>We're dedicated to helping you identify and manage pests effectively while protecting your home and garden.</p>
+                    <div class="footer-social">
+                        <a target="_blank" href="https://www.facebook.com/share/1ALYRfUUnJ/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href="https://x.com/?lang=en" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a target="_blank" href="https://www.instagram.com/pest.guard_?igsh=MTd1ZmpndGFkMGF2ag==" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://in.linkedin.com/" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="identify.html">Identify Pests</a></li>
+                        <li><a href="solutions.html">Solutions</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="auth.html">Login/Sign Up</a></li>
+                        <li><a href="aboutus.html">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@pestguard.com</li>
+                        <li><i class="fas fa-phone"></i> +91 998 754 4262</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Pest Control St, Garden City</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to our newsletter for the latest pest control tips and updates.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your Email" required><br><br>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PestGuard. All rights reserved.</p>
+            </div>
+        </div>
+        <!-- Chatbot Elements -->
+        <div class="chat-container hidden" id="chatContainer">
+            <div class="chat-header">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Pest Expert">
+                <h2>Chat with AI Farmer</h2>
+            </div>
+            
+            <div class="chat-box" id="chatBox">
+                <div class="chat-message bot-message">
+                    <div class="message-content">
+                        Hello! I'm your pest identification assistant. How can I help you today?
+                    </div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            
+            <div class="quick-options">
+                <div class="quick-option" onclick="sendQuickMessage('How to identify bed bugs?')">Bed Bugs</div>
+                <div class="quick-option" onclick="sendQuickMessage('What does a termite look like?')">Termites</div>
+                <div class="quick-option" onclick="sendQuickMessage('How to get rid of ants?')">Ants</div>
+                <div class="quick-option" onclick="sendQuickMessage('What are signs of cockroaches?')">Cockroaches</div>
+                <div class="quick-option" onclick="sendQuickMessage('How to prevent rodents?')">Rodents</div>
+                <div class="quick-option" onclick="sendQuickMessage('Help with spider identification')">Spiders</div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Describe your pest problem..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        
+        <div class="chat-toggle" id="chatToggle" onclick="toggleChat()">
+            <i class="fas fa-bug"></i>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Check for scroll animations
+        window.addEventListener('load', checkScroll);
+        window.addEventListener('scroll', checkScroll);
+        
+        // Chatbot functionality
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            const chatToggle = document.getElementById('chatToggle');
+            
+            chatContainer.classList.toggle('active');
+            chatToggle.innerHTML = chatContainer.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bug"></i>';
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message !== '') {
+                addUserMessage(message);
+                userInput.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate bot response after a delay
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    const botResponse = getBotResponse(message);
+                    addBotMessage(botResponse);
+                    
+                    // Scroll to bottom
+                    const chatBox = document.getElementById('chatBox');
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 1500);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            addUserMessage(message);
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate bot response after a delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const botResponse = getBotResponse(message);
+                addBotMessage(botResponse);
+                
+                // Scroll to bottom
+                const chatBox = document.getElementById('chatBox');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1500);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addUserMessage(message) {
+            const chatBox = document.getElementById('chatBox');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message user-message';
+            messageDiv.innerHTML = `
+                <div class="message-content">${message}</div>
+                <div class="message-time">${timeString}</div>
+            `;
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addBotMessage(message) {
+            const chatBox = document.getElementById('chatBox');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot-message';
+            messageDiv.innerHTML = `
+                <div class="message-content">${message}</div>
+                <div class="message-time">${timeString}</div>
+            `;
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatBox = document.getElementById('chatBox');
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function getBotResponse(userMessage) {
+            // Convert user message to lowercase for easier matching
+            const message = userMessage.toLowerCase();
+            
+            // Pest identification responses
+            if (message.includes('bed bug') || message.includes('bedbug')) {
+                return "Bed bugs are small, oval, brownish insects that feed on blood. Adults are about the size of an apple seed (5-7mm). They often leave small blood stains on sheets and have a musty odor. Look for them in mattress seams, bed frames, and nearby furniture.";
+            } else if (message.includes('termite')) {
+                return "Termites are pale, soft-bodied insects about 1/4 to 1/2 inch long. Worker termites are cream colored, while swarmers are darker with wings. Signs include mud tubes on walls, hollow-sounding wood, and discarded wings near windowsills.";
+            } else if (message.includes('ant')) {
+                return "Ants vary by species but generally have three body parts and bent antennae. Common types include: 1) Carpenter ants (large, black) that damage wood, 2) Odorous house ants (small, brown) that smell when crushed, and 3) Pavement ants (small, dark brown) often seen on sidewalks.";
+            } else if (message.includes('cockroach') || message.includes('roach')) {
+                return "Common cockroaches include: 1) German cockroach (light brown, 1/2-5/8\", two dark stripes), 2) American cockroach (reddish-brown, 1-1.5\", winged), and 3) Oriental cockroach (dark brown/black, 1\"). Signs include droppings (like coffee grounds), egg cases, and a musty odor.";
+            } else if (message.includes('rodent') || message.includes('mouse') || message.includes('rat')) {
+                return "Rodent signs include: 1) Droppings (mouse droppings are 1/4\" rice-shaped, rat droppings are 1/2\" sausage-shaped), 2) Gnaw marks, 3) Grease marks along walls, 4) Scratching noises at night. Mice have pointed noses and large ears, while rats are larger with more blunt noses.";
+            } else if (message.includes('spider')) {
+                return "Most spiders are harmless, but watch for: 1) Black widow (shiny black with red hourglass), 2) Brown recluse (light brown with violin marking). Other common house spiders vary in color and size. Spiders have two body segments and eight legs. Webs indicate activity areas.";
+            } else if (message.includes('identif') || message.includes('what is this')) {
+                return "For identification, please describe: 1) Size (in inches/mm), 2) Color, 3) Shape, 4) Number of legs, 5) Where you found it, and 6) Any damage you've noticed. You can also upload a photo if available (feature coming soon).";
+            } else if (message.includes('get rid of') || message.includes('eliminate') || message.includes('remove')) {
+                return "General pest elimination steps: 1) Identify the pest correctly, 2) Locate entry points and seal them, 3) Remove food/water sources, 4) Use appropriate traps or treatments (varies by pest), 5) Monitor and repeat as needed. For specific solutions, tell me which pest you're dealing with.";
+            } else if (message.includes('prevent') || message.includes('stop')) {
+                return "Pest prevention tips: 1) Seal cracks and openings, 2) Keep food in sealed containers, 3) Fix leaky pipes, 4) Regularly empty trash, 5) Trim vegetation away from buildings, 6) Store firewood away from home, 7) Keep areas clean and clutter-free. Specific pests may need additional measures.";
+            } else if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
+                return "Hello! I'm here to help with all your pest identification and solution needs. You can describe a pest you've seen, ask about signs of infestation, or request prevention tips. How can I assist you today?";
+            } else {
+                // Default response if no specific match
+                return "I'm here to help with pest identification and solutions. Could you please provide more details about: 1) The pest's appearance, 2) Where you found it, and 3) Any problems it's causing? This will help me give you more accurate information.";
+            }
+        }
+
+        // Initialize chat with a welcome message if empty
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatBox = document.getElementById('chatBox');
+            if (chatBox && chatBox.children.length <= 1) { // Only the initial message is present
+                setTimeout(() => {
+                    addBotMessage("You can click the quick options below or type your pest-related question. I can help with identification, solutions, and prevention tips!");
+                }, 1000);
+            }
+        });
+        
+        // Pest identification functionality
+        document.addEventListener("DOMContentLoaded", () => {
+            const uploadArea = document.getElementById("uploadArea");
+            const uploadInput = document.getElementById("uploadInput");
+            const uploadPreview = document.getElementById("uploadPreview");
+            const uploadIcon = uploadArea.querySelector(".upload-icon");
+            const uploadText = uploadArea.querySelector(".upload-text");
+            const identifyBtn = document.getElementById("identifyBtn");
+            const previewContainer = document.getElementById("preview-container");
+            const loader = document.getElementById("loader");
+            const instructions = document.getElementById("instructions");
+            const searchButton = document.getElementById("search-button");
+            const searchButtonContainer = document.getElementById("search-button-container");
+
+            let uploadedImage = null;
+
+            // Drag and Drop Events
+            uploadArea.addEventListener("click", () => uploadInput.click());
+
+            uploadArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                uploadArea.classList.add("highlight");
+            });
+
+            uploadArea.addEventListener("dragleave", () => {
+                uploadArea.classList.remove("highlight");
+            });
+
+            uploadArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove("highlight");
+
+                if (e.dataTransfer.files.length) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            uploadInput.addEventListener("change", () => {
+                if (uploadInput.files.length) {
+                    handleFile(uploadInput.files[0]);
+                }
+            });
+
+            function handleFile(file) {
+                if (!file.type.match("image.*")) {
+                    alert("Please upload an image file");
+                    return;
+                }
+
+                uploadedImage = file;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    // Show the preview container
+                    previewContainer.style.display = "block";
+                    
+                    // Set the image source and make it visible
+                    uploadPreview.src = e.target.result;
+                    uploadPreview.style.display = "block";
+                    
+                    // Hide the upload icon and text
+                    uploadIcon.style.display = "none";
+                    uploadText.style.display = "none";
+                    
+                    // Enable the identify button
+                    identifyBtn.disabled = false;
+
+                    // Hide instructions if they were showing
+                    instructions.style.display = "none";
+                    searchButtonContainer.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            }
+
+            identifyBtn.addEventListener("click", function() {
+                if (!uploadedImage) return;
+
+                // Show loading spinner
+                loader.style.display = "block";
+                identifyBtn.disabled = true;
+                
+                // Simulate processing delay
+                setTimeout(function() {
+                    loader.style.display = "none";
+                    identifyBtn.disabled = false;
+                    
+                    // Show instructions after fake "identification"
+                    instructions.style.display = "block";
+                    searchButtonContainer.style.display = "block";
+
+                    // Store the file name
+                    const fileName = uploadedImage.name.replace(/\.[^/.]+$/, "");
+                    searchButton.dataset.fileName = fileName;
+                }, 1000);
+            });
+
+            searchButton.addEventListener("click", function() {
+                const fileName = this.dataset.fileName || '';
+                let searchTerms = 'pest identification control';
+
+                if (fileName) {
+                    const possiblePestNames = fileName.split(/[_\-\s.]+/);
+                    const potentialPestName = possiblePestNames.reduce((a, b) => a.length > b.length ? a : b);
+
+                    if (potentialPestName.length > 3) {
+                        searchTerms = `${potentialPestName} pest identification control`;
+                    }
+                }
+
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(searchTerms)}`, '_blank');
+            });
+        });
+    </script>
+<script>
+// Ensure theme toggle works correctly
+document.addEventListener("DOMContentLoaded", function() {
+  // Apply theme from localStorage
+  const isDarkTheme = localStorage.getItem("theme") === "dark";
+  if (isDarkTheme) {
+    document.body.classList.add("dark-theme");
+  } else {
+    document.body.classList.remove("dark-theme");
+  }
+  
+  // Update icon based on current theme
+  const themeToggle = document.querySelector(".theme-toggle");
+  if (themeToggle) {
+    const icon = themeToggle.querySelector("i");
+    
+    if (isDarkTheme && icon) {
+      icon.classList.remove("fa-moon");
+      icon.classList.add("fa-sun");
+    } else if (icon) {
+      icon.classList.remove("fa-sun");
+      icon.classList.add("fa-moon");
+    }
+    
+    // Add event listener for theme toggle
+    themeToggle.addEventListener("click", function() {
+      document.body.classList.toggle("dark-theme");
+      const toggleIcon = themeToggle.querySelector("i");
+      
+      if (document.body.classList.contains("dark-theme")) {
+        toggleIcon.classList.remove("fa-moon");
+        toggleIcon.classList.add("fa-sun");
+        localStorage.setItem("theme", "dark");
+      } else {
+        toggleIcon.classList.remove("fa-sun");
+        toggleIcon.classList.add("fa-moon");
+        localStorage.setItem("theme", "light");
+      }
+    });
+  }
+  
+  // Update navigation based on login state
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const currentUser = localStorage.getItem("currentUser");
+  
+  if (isLoggedIn && currentUser) {
+    const authNavLink = document.querySelector('.nav-link[href="auth.html"]');
+    if (authNavLink) {
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      const userName = users[currentUser]?.name || "User";
+      authNavLink.innerHTML = `<i class="fas fa-user"></i> ${userName}`;
+    }
+  }
+});
+</script>
+    <script src="protect-pages.js"></script>
+</body>
+</html>

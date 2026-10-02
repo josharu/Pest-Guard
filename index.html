@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PestGuard - Pest Identification & Solutions</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Enhanced Chatbot Styles */
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            max-width: 90%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+            z-index: 1000;
+            display: none;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .chat-container.active {
+            display: block;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .chat-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-box {
+            height: 350px;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            scroll-behavior: smooth;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 5px;
+            position: relative;
+            word-wrap: break-word;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .bot-message .message-content {
+            background-color: #ffffff;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .user-message .message-content {
+            background-color: #4CAF50;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #777;
+            margin-top: 3px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 12px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .chat-input button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-input button:hover {
+            background-color: #3d8b40;
+            transform: scale(1.05);
+        }
+
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            gap: 8px;
+        }
+
+        .quick-option {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .quick-option:hover {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+
+        .chat-toggle i {
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        .chat-toggle.active i {
+            transform: rotate(90deg);
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            padding: 12px 15px;
+            background-color: #f1f1f1;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            width: fit-content;
+            align-items: center;
+        }
+
+        .typing-text {
+            margin-right: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #666;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Search Results Section Enhancements */
+        .search-results {
+            padding: 4rem 0;
+            background-color: #f9f9f9;
+        }
+
+        .search-results h2 {
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+        }
+
+        #search-results-container {
+            position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 1.5rem 2rem;
+  border-radius: var(--radius);
+  background-color: var(--card);
+  border: 1px solid rgba(34, 197, 94, 0.2); /* Light green border */
+  background-color: rgba(34, 197, 94, 0.05); /* Very light green background */
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.08);
+  transition: all 0.3s ease;
+        }
+        #dark search-results-container{
+            background-color: rgba(34, 197, 94, 0.1); /* Slightly darker green in dark mode */
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        .search-result-item {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .search-result-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .search-result-image {
+            height: 200px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-result-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .search-result-content {
+            padding: 1.5rem;
+        }
+
+        .search-result-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .search-result-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: #e8f5e9;
+            color: #4CAF50;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .search-result-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .search-result-link {
+            display: inline-flex;
+            align-items: center;
+            color: #4CAF50;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .search-result-link:hover {
+            color: #3d8b40;
+            text-decoration: underline;
+        }
+
+        .search-result-link i {
+            margin-left: 5px;
+            transition: transform 0.3s;
+        }
+
+        .search-result-link:hover i {
+            transform: translateX(3px);
+        }
+
+        /* No results state */
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            grid-column: 1 / -1;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        .no-results h3 {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .no-results a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .no-results a:hover {
+            text-decoration: underline;
+        }
+        
+        .search-results {
+  padding: 3rem 0;
+  background-color: var(--background);
+}
+
+.search-results h2 {
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  text-align: center;
+  font-weight: 700;
+}
+
+#search-results-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.search-result-item {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.search-result-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.search-result-image {
+  height: 180px;
+  background-color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.search-result-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.search-result-item:hover .search-result-image img {
+  transform: scale(1.05);
+}
+
+.search-result-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-result-category {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  align-self: flex-start;
+}
+
+.search-result-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.search-result-description {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  flex-grow: 1;
+}
+
+.search-result-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.search-result-link:hover {
+  color: var(--primary-dark);
+}
+
+.search-result-link i {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.search-result-link:hover i {
+  transform: translateX(3px);
+}
+
+/* No results state */
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  grid-column: 1 / -1;
+}
+
+.no-results i {
+  font-size: 3rem;
+  color: var(--muted-text);
+  margin-bottom: 1rem;
+}
+
+.no-results h3 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.no-results p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.no-results a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.no-results a:hover {
+  color: var(--primary-dark);
+}
+
+.no-results a i {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.no-results a:hover i {
+  transform: translateX(3px);
+}
+
+/* Dark mode adjustments */
+.dark .search-result-item {
+  background-color: var(--dark-card-bg);
+  border-color: var(--dark-border);
+}
+
+.dark .search-result-title {
+  color: var(--dark-text-primary);
+}
+
+.dark .search-result-description {
+  color: var(--dark-text-secondary);
+}
+
+        /* Search suggestions dropdown */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .search-suggestion {
+            padding: 12px 16px;
+            cursor: pointer;
+            color: black;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggestion:hover {
+            background-color: #f5f5f5;
+        }
+
+        .search-suggestion.highlighted {
+            background-color: #e8f5e9;
+        }
+
+        .search-suggestion i {
+            margin-right: 10px;
+            color: #4CAF50;
+        }
+
+        .search-loading {
+            padding: 12px 16px;
+            color: #666;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-loading i {
+            margin-right: 8px;
+            animation: spin 1s linear infinite;
+        }
+        /* Search Input Outline Styles */
+.search-input {
+  /* Light theme default */
+  outline: 2px solid  rgba(0, 0, 0, 0.4); /* Primary color with opacity */
+  outline-offset: 2px;
+  transition: outline-color 0.3s ease;
+}
+
+.dark .search-input {
+  /* Dark theme override */
+  outline: 2px solid rgba(0, 0, 0, 0.4); /* Slightly more visible in dark */
+}
+
+/* Focus states */
+.search-input:focus {
+  outline: 2px solid #22c55e; /* Your primary green */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+}
+
+.dark .search-input:focus {
+  outline: 2px solid #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.4);
+}
+
+/* Search Button Outline */
+.search-btn {
+  outline: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.search-btn:focus {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+.dark .search-btn:focus {
+  outline: 2px solid #22c55e;
+  background-color: #16a34a; /* Slightly darker green */
+}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-no-results {
+            padding: 12px 16px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 90%;
+                right: 5%;
+                bottom: 70px;
+            }
+            
+            .chat-box {
+                height: 250px;
+            }
+            
+            .search-results {
+                padding: 2rem 0;
+            }
+            
+            #search-results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container container">
+            <div class="logo">
+                <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Semicircle Head (lowered closer to body) -->
+                    <path d="M28 26 A4 4 0 0 1 36 26" fill="#4CAF50"/>
+                
+                    <!-- Round Body -->
+                    <circle cx="32" cy="36" r="10" fill="#4CAF50"/>
+                
+                    <!-- Center Line -->
+                    <line x1="32" y1="28" x2="32" y2="48" stroke="black" stroke-width="1.5"/>
+                
+                    <!-- Compact Left Legs -->
+                    <path d="M26 30 Q20 28 20 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 36 Q18 36 18 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 42 Q20 44 20 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                
+                    <!-- Compact Right Legs -->
+                    <path d="M38 30 Q44 28 44 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 36 Q46 36 46 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 42 Q44 44 44 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                  </svg>
+                <span>PestGuard</span>
+            </div>
+            <nav>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="identify.html" class="nav-link">Identify</a></li>
+                    <li><a href="solutions.html" class="nav-link">Solutions</a></li>
+                    <li><a href="resources.html" class="nav-link">Resources</a></li>
+                    <li><a href="auth.html" class="nav-link">Login/Sign Up</a></li>
+                    <li><a href="aboutus.html" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-gradient"></div>
+        <div class="container hero-container"><br><br>
+            <h1 class="hero-title">Identify & Control Pests <span class="text-primary">Effectively</span></h1>
+            <p class="hero-description">
+                Upload images, describe symptoms, or search our database to identify pests and get customized control solutions.
+            </p>
+            <div class="search-container">
+                <form id="search-form" class="search-form" autocomplete="off">
+                    <input type="text" 
+                           class="search-input" 
+                           id="pest-search" 
+                           placeholder="Search for pests, symptoms, or solutions..."
+                           aria-label="Search for pest information">
+                    <button type="submit" class="btn btn-primary search-btn">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                    <!-- Search suggestions dropdown -->
+                    <div class="search-suggestions" id="search-suggestions"></div>
+                </form>
+            </div>
+            <div class="hero-actions">
+                <a href="identify.html" class="btn btn-primary btn-lg">
+                    <i class="fas fa-camera"></i> Identify a Pest
+                </a>
+                <a href="resources.html" class="btn btn-outline btn-lg">
+                    <i class="fas fa-book-open"></i> Browse Resources
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results Section -->
+    <section class="search-results container" id="dynamic-results" style="display: none;">
+        <h2>Search Results for "<span id="search-query"></span>"</h2>
+        <div id="search-results-container">
+            <!-- Results will be populated here by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container"><br><br>
+            <h2 class="section-title">How It Works</h2>
+            <div class="features-grid">
+                <!-- Card 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3 class="feature-title">Upload & Identify</h3>
+                    <p class="feature-description">
+                        Upload images of pests or damage for instant AI-powered identification.
+                    </p>
+                    <div class="feature-step">1</div>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="feature-title">Get Solutions</h3>
+                    <p class="feature-description">
+                        Receive customized eco-friendly and conventional treatment options.
+                    </p>
+                    <div class="feature-step">2</div>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="feature-title">Community Support</h3>
+                    <p class="feature-description">
+                        Connect with experts and other users to share experiences and advice.
+                    </p>
+                    <div class="feature-step">3</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news">
+        <div class="container">
+            <h2 class="section-title">Latest Pest News</h2>
+            <div class="news-scroller">
+                <button class="scroll-btn scroll-left" aria-label="Scroll left">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="news-container">
+                    <div class="news-card">
+                        <p class="news-date">March 25, 2025</p>
+                        <h3 class="news-title">New Invasive Species Alert: Spotted Lanternfly Spreading in Eastern States</h3>
+                        <p class="news-summary">The spotted lanternfly continues to spread across eastern states, threatening agriculture and forestry.</p>
+                    </div>
+                    <div class="news-card">
+                        <p class="news-date">March 22, 2025</p>
+                        <h3 class="news-title">Eco-Friendly Pest Control Methods Gain Popularity Among Homeowners</h3>
+                        <p class="news-summary">More homeowners are turning to natural and eco-friendly pest control solutions to protect their families and pets.</p>
+                    </div>
+                    <div class="news-card">
+                        <p class="news-date">March 18, 2025</p>
+                        <h3 class="news-title">Climate Change Affecting Pest Populations and Distribution Patterns</h3>
+                        <p class="news-summary">Researchers find that changing climate conditions are altering pest behavior and expanding their geographical range.</p>
+                    </div>
+                    <div class="news-card">
+                        <p class="news-date">March 15, 2025</p>
+                        <h3 class="news-title">New App Helps Farmers Identify and Track Crop Pests in Real-Time</h3>
+                        <p class="news-summary">A new mobile application is helping farmers identify and monitor pest infestations more efficiently.</p>
+                    </div>
+                    <div class="news-card">
+                        <p class="news-date">March 10, 2025</p>
+                        <h3 class="news-title">Study Shows Integrated Pest Management Reduces Pesticide Use by 50%</h3>
+                        <p class="news-summary">Recent research confirms that integrated pest management strategies significantly reduce the need for chemical pesticides.</p>
+                    </div>
+                </div>
+                <button class="scroll-btn scroll-right" aria-label="Scroll right">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Videos Section -->
+    <section class="videos">
+        <div class="container">
+            <h2 class="section-title">Recommended Videos</h2>
+            <div class="videos-grid">
+                <div class="video-card"  onclick="playVideo('1.mp4','_blank')">
+                    <div class="video-thumbnail">
+                        <img src="Videoimg/1.png" alt="Video 1">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">PestGuard Tip #1</h3>
+                        <p class="video-description">Watch this helpful tip to manage common pests effectively.</p>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="playVideo('2.mp4','_blank')">
+                    <div class="video-thumbnail">
+                        <img src="Videoimg/2.png" alt="Video 2">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">PestGuard Tip #2</h3>
+                        <p class="video-description">Learn about eco-friendly solutions to control pests naturally.</p>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="playVideo('3.mp4','_blank')">
+                    <div class="video-thumbnail">
+                        <img src="Videoimg/3.png" alt="Video 3">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">PestGuard Tip #3</h3>
+                        <p class="video-description">Discover smart pest prevention strategies for your home.</p>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </section>
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container text-center">
+            <h2 class="cta-title">Ready to Solve Your Pest Problems?</h2>
+            <p class="cta-description">
+                Join thousands of homeowners, farmers, and professionals who use PestSmart to identify and control pests effectively.
+            </p>
+            <a href="auth.html" class="btn btn-secondary btn-lg">Get Started for Free</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>About PestGuard</h3>
+                    <p>We're dedicated to helping you identify and manage pests effectively while protecting your home and garden.</p>
+                    <div class="footer-social">
+                        <a target="_blank" href="https://www.facebook.com/share/1ALYRfUUnJ/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href="https://x.com/?lang=en" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a target="_blank" href="https://www.instagram.com/pest.guard_?igsh=MTd1ZmpndGFkMGF2ag==" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://in.linkedin.com/" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="identify.html">Identify Pests</a></li>
+                        <li><a href="solutions.html">Solutions</a></li>
+                        <li><a href="Resources.html">Resources</a></li>
+                        <li><a href="auth.html">Login/Sign Up</a></li>
+                        <li><a href="aboutus.html">About us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@pestguard.com</li>
+                        <li><i class="fas fa-phone"></i> +91 998 754 4262</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Pest Control St, Garden City</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to our newsletter for the latest pest control tips and updates.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your Email" required><br><br>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PestGuard. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chatbot Elements -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header" onclick="toggleChat()">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Pest Expert">
+            <h2>PestGuard Assistant</h2>
+        </div>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="chat-message bot-message">
+                <div class="message-content">
+                    Hello! I'm your pest identification assistant. How can I help you today?
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </div>
+        
+        <div class="quick-options">
+            <div class="quick-option" onclick="sendQuickMessage('How to identify bed bugs?')">
+                <i class="fas fa-bed"></i> Bed Bugs
+            </div>
+            <div class="quick-option" onclick="sendQuickMessage('What does a termite look like?')">
+                <i class="fas fa-home"></i> Termites
+            </div>
+            <div class="quick-option" onclick="sendQuickMessage('How to get rid of ants?')">
+                <i class="fas fa-bug"></i> Ants
+            </div>
+            <div class="quick-option" onclick="sendQuickMessage('What are signs of cockroaches?')">
+                <i class="fas fa-cockroach"></i> Cockroaches
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Describe your pest problem..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+    <div class="chat-toggle" id="chatToggle" onclick="toggleChat()">
+        <i class="fas fa-bug"></i>
+    </div>
+
+    <!-- Ensure script.js loads first -->
+<script src="script.js"></script>  <!-- Contains checkScroll(), etc. -->
+<script src="auth.js"></script>
+<script src="script.js"></script>
+<script>
+    // Enhanced Search Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('pest-search');
+        const suggestionsContainer = document.getElementById('search-suggestions');
+        const dynamicResults = document.getElementById('dynamic-results');
+        
+        // Extended pest database with more details
+        const pestDatabase = [
+            { 
+                name: "Aphids", 
+                type: "insect", 
+                category: "garden",
+                description: "Small sap-sucking insects that attack plants, causing leaf curling and stunted growth.",
+                image: "Gardenpest/Aphid.jpeg"
+            },
+            { 
+                name: "Spider Mites", 
+                type: "arachnid", 
+                category: "indoor/outdoor",
+                description: "Tiny spider-like pests that create fine webs on plants and cause yellow stippling on leaves.",
+                image: "Gardenpest/Spider-Mites.jpg"
+            },
+            { 
+                name: "Termites", 
+                type: "insect", 
+                category: "structural",
+                description: "Wood-destroying insects that can cause significant damage to buildings and structures.",
+                image: "Householdpest/termites.jpg"
+            },
+            { 
+                name: "Cockroaches", 
+                type: "insect", 
+                category: "indoor",
+                description: "Fast-moving pests that spread bacteria and can trigger allergies and asthma.",
+                image: "Petsafe/cockroach.jpg"
+            },
+            { 
+                name: "Rodents", 
+                type: "mammal", 
+                category: "general",
+                description: "Includes mice and rats that can damage property and spread diseases.",
+                image: "images/rodents.jpg"
+            },
+            { 
+                name: "Ants", 
+                type: "insect", 
+                category: "general",
+                description: "Social insects that invade homes in search of food, with some species capable of stinging.",
+                image: "Petsafe/fireant.jpg"
+            },
+            { 
+                name: "Bed Bugs", 
+                type: "insect", 
+                category: "indoor",
+                description: "Small, blood-sucking insects that hide in mattresses and furniture, causing itchy bites.",
+                image: "Householdpest/Redbug.webp"
+            },
+            { 
+                name: "Mosquitoes", 
+                type: "insect", 
+                category: "outdoor",
+                description: "Flying insects that bite and can transmit diseases like malaria and dengue.",
+                image: "Petsafe/mosquito.jpeg"
+            },
+            { 
+                name: "Fleas Beetles", 
+                type: "insect", 
+                category: "pet",
+                description: "Tiny jumping insects that infest pets and can bite humans, causing itching and irritation.",
+                image: "Gardenpest\flea-beetles.jpg"
+            },
+            { 
+                name: "Ticks", 
+                type: "arachnid", 
+                category: "outdoor",
+                description: "Blood-feeding parasites that can transmit Lyme disease and other illnesses.",
+                image: "Petsafe/ticks.jpg"
+            }
+        ];
+
+        // Show search suggestions
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim().toLowerCase();
+            
+            if (query.length < 2) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            
+            // Show loading state
+            suggestionsContainer.innerHTML = `
+                <div class="search-loading">
+                    <i class="fas fa-spinner"></i> Searching...
+                </div>
+            `;
+            suggestionsContainer.style.display = 'block';
+            
+            // Simulate API delay
+            setTimeout(() => {
+                const results = pestDatabase.filter(pest => 
+                    pest.name.toLowerCase().includes(query) ||
+                    pest.type.toLowerCase().includes(query) ||
+                    pest.category.toLowerCase().includes(query) ||
+                    pest.description.toLowerCase().includes(query)
+                );
+                
+                displaySuggestions(results);
+            }, 300);
+        });
+        
+        // Handle form submission
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            
+            if (query) {
+                // Show loading state
+                const resultsContainer = document.getElementById('search-results-container');
+                resultsContainer.innerHTML = `
+                    <div class="search-loading" style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading results for "${query}"
+                    </div>
+                `;
+                
+                dynamicResults.style.display = 'block';
+                document.getElementById('search-query').textContent = query;
+                
+                // Scroll to results
+                setTimeout(() => {
+                    dynamicResults.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Simulate search results (replace with actual API call)
+                    const mockResults = pestDatabase.filter(pest => 
+                        pest.name.toLowerCase().includes(query.toLowerCase()) ||
+                        pest.description.toLowerCase().includes(query.toLowerCase())
+                    );
+                    
+                    displaySearchResults(mockResults, query);
+                }, 500);
+            }
+        });
+        
+        // Display suggestions
+        function displaySuggestions(results) {
+            if (results.length === 0) {
+                suggestionsContainer.innerHTML = `
+                    <div class="search-no-results">
+                        <i class="fas fa-search"></i> No pests found
+                    </div>
+                `;
+                return;
+            }
+            
+            suggestionsContainer.innerHTML = '';
+            results.slice(0, 5).forEach((result, index) => {
+                const suggestion = document.createElement('div');
+                suggestion.className = 'search-suggestion';
+                suggestion.innerHTML = `
+                    <i class="fas fa-${getPestIcon(result.type)}"></i>
+                    <span>${result.name} <small>(${result.category})</small></span>
+                `;
+                suggestion.dataset.value = result.name;
+                
+                suggestion.addEventListener('click', function() {
+                    searchInput.value = result.name;
+                    suggestionsContainer.style.display = 'none';
+                    
+                    // Trigger search
+                    const event = new Event('submit');
+                    searchForm.dispatchEvent(event);
+                });
+                
+                suggestionsContainer.appendChild(suggestion);
+            });
+        }
+        
+        // Display search results
+        function displaySearchResults(results, query) {
+            const resultsContainer = document.getElementById('search-results-container');
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search fa-3x"></i>
+                        <h3>No results found for "${query}"</h3>
+                        <p>Try different keywords or browse our <a href="resources.html">resources</a>.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            resultsContainer.innerHTML = results.map(result => `
+                <div class="search-result-item">
+                    <div class="search-result-image">
+                        <img src="${result.image}" alt="${result.name}">
+                    </div>
+                    <div class="search-result-content">
+                        <span class="search-result-category">${result.category}</span>
+                        <h3 class="search-result-title">${result.name}</h3>
+                        <p class="search-result-description">${result.description}</p>
+                        <a href="solutions.html#${result.name.toLowerCase().replace(' ', '-')}" class="search-result-link">
+                            View solutions <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Get appropriate icon for pest type
+        function getPestIcon(type) {
+            const icons = {
+                'insect': 'bug',
+                'arachnid': 'spider',
+                'mammal': 'paw',
+                'structural': 'home',
+                'garden': 'leaf',
+                'pet': 'paw'
+            };
+            return icons[type] || 'bug';
+        }
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchForm.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+        
+        // Keyboard navigation for suggestions
+        searchInput.addEventListener('keydown', function(e) {
+            const suggestions = document.querySelectorAll('.search-suggestion');
+            const highlighted = document.querySelector('.search-suggestion.highlighted');
+            
+            if (e.key === 'ArrowDown' && suggestions.length > 0) {
+                e.preventDefault();
+                if (!highlighted) {
+                    suggestions[0].classList.add('highlighted');
+                } else {
+                    highlighted.classList.remove('highlighted');
+                    const next = highlighted.nextElementSibling || suggestions[0];
+                    next.classList.add('highlighted');
+                    next.scrollIntoView({ block: 'nearest' });
+                }
+            } else if (e.key === 'ArrowUp' && suggestions.length > 0) {
+                e.preventDefault();
+                if (highlighted) {
+                    highlighted.classList.remove('highlighted');
+                    const prev = highlighted.previousElementSibling || suggestions[suggestions.length - 1];
+                    prev.classList.add('highlighted');
+                    prev.scrollIntoView({ block: 'nearest' });
+                }
+            } else if (e.key === 'Enter' && highlighted) {
+                e.preventDefault();
+                searchInput.value = highlighted.dataset.value;
+                suggestionsContainer.style.display = 'none';
+                
+                // Trigger search
+                const event = new Event('submit');
+                searchForm.dispatchEvent(event);
+            }
+        });
+        
+        // Check URL for search query
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('q');
+        
+        if (searchQuery) {
+            searchInput.value = searchQuery;
+            const event = new Event('submit');
+            searchForm.dispatchEvent(event);
+        }
+    });
+
+    // Enhanced Chatbot Functionality
+    function toggleChat() {
+        const chatContainer = document.getElementById('chatContainer');
+        const chatToggle = document.getElementById('chatToggle');
+        
+        chatContainer.classList.toggle('active');
+        chatToggle.classList.toggle('active');
+        
+        if (chatContainer.classList.contains('active')) {
+            // Focus input when chat opens
+            setTimeout(() => {
+                document.getElementById('userInput').focus();
+            }, 300);
+        }
+    }
+
+    function sendMessage() {
+        const userInput = document.getElementById('userInput');
+        const message = userInput.value.trim();
+        
+        if (message !== '') {
+            addUserMessage(message);
+            userInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate bot response after a delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const botResponse = getBotResponse(message);
+                addBotMessage(botResponse);
+                
+                // Scroll to bottom
+                const chatBox = document.getElementById('chatBox');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1500);
+        }
+    }
+
+    function sendQuickMessage(message) {
+        addUserMessage(message);
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Simulate bot response after a delay
+        setTimeout(() => {
+            removeTypingIndicator();
+            const botResponse = getBotResponse(message);
+            addBotMessage(botResponse);
+            
+            // Scroll to bottom
+            const chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 1500);
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function addUserMessage(message) {
+        const chatBox = document.getElementById('chatBox');
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message user-message';
+        messageDiv.innerHTML = `
+            <div class="message-content">${message}</div>
+            <div class="message-time">${timeString}</div>
+        `;
+        
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addBotMessage(message) {
+        const chatBox = document.getElementById('chatBox');
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message bot-message';
+        messageDiv.innerHTML = `
+            <div class="message-content">${message}</div>
+            <div class="message-time">${timeString}</div>
+        `;
+        
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const chatBox = document.getElementById('chatBox');
+        
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+            <span class="typing-text">PestGuard is typing</span>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        `;
+        
+        chatBox.appendChild(typingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    function getBotResponse(userMessage) {
+        // Convert user message to lowercase for easier matching
+        const message = userMessage.toLowerCase();
+        
+        // Enhanced pest identification responses with more details
+        if (message.includes('bed bug') || message.includes('bedbug')) {
+            return "Bed bugs are small, oval, brownish insects that feed on blood. Adults are about the size of an apple seed (5-7mm). Key signs include:<br><br>" +
+                   "• Small blood stains on sheets<br>" +
+                   "• Dark spots of bug excrement<br>" +
+                   "• A sweet musty odor<br>" +
+                   "• Itchy, red bites in a line or cluster<br><br>" +
+                   "They hide in mattress seams, bed frames, headboards, and nearby furniture during the day. For solutions, visit our <a href='solutions.html#bed-bugs' style='color:#4CAF50;font-weight:600;'>Bed Bug Solutions</a> page.";
+        } else if (message.includes('termite')) {
+            return "Termites are pale, soft-bodied insects about 1/4 to 1/2 inch long. There are three main types:<br><br>" +
+                   "1. <b>Subterranean termites</b> - Most destructive, live in soil<br>" +
+                   "2. <b>Drywood termites</b> - Live in dry wood above ground<br>" +
+                   "3. <b>Dampwood termites</b> - Prefer moist wood<br><br>" +
+                   "Signs of infestation include:<br>" +
+                   "• Mud tubes on walls/foundation<br>" +
+                   "• Hollow-sounding wood<br>" +
+                   "• Discarded wings near windows<br>" +
+                   "• Cracked or bubbling paint<br><br>" +
+                   "See our <a href='solutions.html#termites' style='color:#4CAF50;font-weight:600;'>Termite Treatment Guide</a> for professional and DIY solutions.";
+        } else if (message.includes('ant')) {
+            return "Ants vary by species but generally have three body parts and bent antennae. Common household ants include:<br><br>" +
+                   "<b>1. Carpenter ants</b> (large, black) - Can damage wood structures<br>" +
+                   "<b>2. Odorous house ants</b> (small, brown) - Smell like rotten coconut when crushed<br>" +
+                   "<b>3. Pavement ants</b> (small, dark brown) - Nest under sidewalks<br>" +
+                   "<b>4. Pharaoh ants</b> (tiny, yellow) - Common in hospitals<br><br>" +
+                   "For identification help, <a href='identify.html' style='color:#4CAF50;font-weight:600;'>upload a photo</a> or describe the ant's size and color.";
+        } else if (message.includes('cockroach') || message.includes('roach')) {
+            return "Common cockroach species and their identifying features:<br><br>" +
+                   "<b>German cockroach</b> (most common):<br>" +
+                   "- Light brown with two dark stripes<br>" +
+                   "- 1/2 to 5/8 inch long<br>" +
+                   "- Prefers warm, humid areas like kitchens<br><br>" +
+                   "<b>American cockroach</b> (largest):<br>" +
+                   "- Reddish-brown with yellow border<br>" +
+                   "- 1-1.5 inches long<br>" +
+                   "- Often found in basements and sewers<br><br>" +
+                   "<b>Oriental cockroach</b>:<br>" +
+                   "- Dark brown/black<br>" +
+                   "- 1 inch long<br>" +
+                   "- Prefers cool, damp areas<br><br>" +
+                   "For control methods, visit our <a href='solutions.html#cockroaches' style='color:#4CAF50;font-weight:600;'>Cockroach Solutions</a>.";
+        } else if (message.includes('rodent') || message.includes('mouse') || message.includes('rat')) {
+            return "Rodent signs to look for:<br><br>" +
+                   "• <b>Droppings</b>: Mouse (1/4\" rice-shaped), Rat (1/2\" sausage-shaped)<br>" +
+                   "• <b>Gnaw marks</b> on food packages, wires, or structures<br>" +
+                   "• <b>Grease marks</b> along walls from their fur<br>" +
+                   "• <b>Scratching noises</b> in walls/ceilings at night<br>" +
+                   "• <b>Nests</b> made of shredded paper/insulation<br><br>" +
+                   "Key differences:<br>" +
+                   "- Mice: pointed nose, large ears, 3-4\" long<br>" +
+                   "- Rats: blunt nose, small ears, 9-11\" long<br><br>" +
+                   "Our <a href='resources/rodent-control.html' style='color:#4CAF50;font-weight:600;'>Rodent Control Guide</a> covers prevention and elimination.";
+        } else if (message.includes('spider')) {
+            return "Most spiders are harmless, but these are notable:<br><br>" +
+                   "<b>Black widow</b>:<br>" +
+                   "- Shiny black with red hourglass on abdomen<br>" +
+                   "- Neurotoxic venom (seek medical attention if bitten)<br><br>" +
+                   "<b>Brown recluse</b>:<br>" +
+                   "- Light brown with violin-shaped marking<br>" +
+                   "- Necrotic venom (can cause tissue damage)<br><br>" +
+                   "<b>Common house spiders</b>:<br>" +
+                   "- Various sizes and colors<br>" +
+                   "- Generally harmless<br>" +
+                   "- Help control other pests<br><br>" +
+                   "For spider identification, <a href='identify.html' style='color:#4CAF50;font-weight:600;'>upload a photo</a> of the spider and its web (if available).";
+        } else if (message.includes('identif') || message.includes('what is this') || message.includes('what pest')) {
+            return "For accurate identification, please provide:<br><br>" +
+                   "1. <b>Size</b> (in inches/mm)<br>" +
+                   "2. <b>Color</b><br>" +
+                   "3. <b>Shape</b><br>" +
+                   "4. <b>Number of legs</b><br>" +
+                   "5. <b>Location</b> (where you found it)<br>" +
+                   "6. <b>Damage</b> (if any plants/property are affected)<br><br>" +
+                   "For best results, <a href='identify.html' style='color:#4CAF50;font-weight:600;'>upload a clear photo</a> of the pest and any damage.";
+        } else if (message.includes('get rid of') || message.includes('eliminate') || message.includes('remove')) {
+            return "Effective pest elimination requires:<br><br>" +
+                   "1. <b>Correct identification</b> of the pest<br>" +
+                   "2. <b>Locating entry points</b> and sealing them<br>" +
+                   "3. <b>Removing food/water sources</b><br>" +
+                   "4. <b>Using appropriate treatments</b> (varies by pest)<br>" +
+                   "5. <b>Monitoring</b> and repeating as needed<br><br>" +
+                   "For specific solutions, tell me:<br>" +
+                   "- Which pest you're dealing with<br>" +
+                   "- Where it's located (kitchen, garden, etc.)<br>" +
+                   "- Whether you prefer chemical or natural methods";
+        } else if (message.includes('prevent') || message.includes('stop')) {
+            return "General pest prevention tips:<br><br>" +
+                   "• <b>Seal entry points</b> (caulk cracks, install door sweeps)<br>" +
+                   "• <b>Store food</b> in airtight containers<br>" +
+                   "• <b>Fix leaks</b> and eliminate standing water<br>" +
+                   "• <b>Regularly empty trash</b> and keep bins sealed<br>" +
+                   "• <b>Trim vegetation</b> away from buildings<br>" +
+                   "• <b>Store firewood</b> away from home<br>" +
+                   "• <b>Reduce clutter</b> where pests can hide<br><br>" +
+                   "Our <a href='resources/prevention.html' style='color:#4CAF50;font-weight:600;'>Pest Prevention Guide</a> has room-by-room checklists.";
+        } else if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
+            return "Hello! I'm PestGuard's AI assistant. I can help with:<br><br>" +
+                   "• <b>Pest identification</b> (describe or upload photos)<br>" +
+                   "• <b>Control solutions</b> (chemical and natural)<br>" +
+                   "• <b>Prevention tips</b> for your home/garden<br>" +
+                   "• <b>Emergency advice</b> for dangerous pests<br><br>" +
+                   "Try asking about specific pests like bed bugs, termites, or ants, or click the quick options below!";
+        } else if (message.includes('thank')) {
+            return "You're welcome! Remember, you can always come back if you have more pest-related questions. For comprehensive guides, visit our <a href='resources.html' style='color:#4CAF50;font-weight:600;'>Resources section</a>.";
+        } else {
+            // Default response if no specific match
+            return "I'm here to help with pest identification and solutions. Could you please provide more details about:<br><br>" +
+                   "1. The pest's <b>appearance</b> (size, color, shape)<br>" +
+                   "2. <b>Where</b> you found it (kitchen, garden, etc.)<br>" +
+                   "3. Any <b>problems</b> it's causing<br><br>" +
+                   "This will help me give you more accurate information. You can also try one of the quick options below!";
+        }
+    }
+
+    // Initialize chat with a welcome message if empty
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatBox = document.getElementById('chatBox');
+        if (chatBox && chatBox.children.length <= 1) {
+            setTimeout(() => {
+                addBotMessage("You can click the quick options below or describe your pest problem. I can help with:<br><br>" +
+                             "• Identifying pests from descriptions<br>" +
+                             "• Recommending control methods<br>" +
+                             "• Providing prevention tips<br>" +
+                             "• Answering pest-related questions");
+            }, 1000);
+        }
+        
+        // Check for scroll animations
+        window.addEventListener('load', checkScroll);
+        window.addEventListener('scroll', checkScroll);
+    });
+
+    function checkScroll() {
+        // Your existing scroll animation logic
+    }
+</script>
+<video id="fullscreenPlayer" style="display:none;" controls></video>
+    <script>
+        function playVideo(fileName) {
+            const player = document.getElementById('fullscreenPlayer');
+            player.src = fileName;
+            player.style.display = 'block';
+            player.play();
+    
+            // Enter fullscreen mode
+            if (player.requestFullscreen) {
+                player.requestFullscreen();
+            } else if (player.webkitRequestFullscreen) {
+                player.webkitRequestFullscreen();
+            } else if (player.msRequestFullscreen) {
+                player.msRequestFullscreen();
+            }
+    
+            // Exit fullscreen cleanup
+            player.onfullscreenchange = () => {
+                if (!document.fullscreenElement) {
+                    player.pause();
+                    player.style.display = 'none';
+                    player.src = '';
+                }
+            };
+        }
+    </script>
+<script>
+// Ensure theme toggle works correctly
+document.addEventListener("DOMContentLoaded", function() {
+  // Apply theme from localStorage
+  const isDarkTheme = localStorage.getItem("theme") === "dark";
+  if (isDarkTheme) {
+    document.body.classList.add("dark-theme");
+  } else {
+    document.body.classList.remove("dark-theme");
+  }
+  
+  // Update icon based on current theme
+  const themeToggle = document.querySelector(".theme-toggle");
+  if (themeToggle) {
+    const icon = themeToggle.querySelector("i");
+    
+    if (isDarkTheme && icon) {
+      icon.classList.remove("fa-moon");
+      icon.classList.add("fa-sun");
+    } else if (icon) {
+      icon.classList.remove("fa-sun");
+      icon.classList.add("fa-moon");
+    }
+    
+    // Add event listener for theme toggle
+    themeToggle.addEventListener("click", function() {
+      document.body.classList.toggle("dark-theme");
+      const toggleIcon = themeToggle.querySelector("i");
+      
+      if (document.body.classList.contains("dark-theme")) {
+        toggleIcon.classList.remove("fa-moon");
+        toggleIcon.classList.add("fa-sun");
+        localStorage.setItem("theme", "dark");
+      } else {
+        toggleIcon.classList.remove("fa-sun");
+        toggleIcon.classList.add("fa-moon");
+        localStorage.setItem("theme", "light");
+      }
+    });
+  }
+  
+  // Update navigation based on login state
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const currentUser = localStorage.getItem("currentUser");
+  
+  if (isLoggedIn && currentUser) {
+    const authNavLink = document.querySelector('.nav-link[href="auth.html"]');
+    if (authNavLink) {
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      const userName = users[currentUser]?.name || "User";
+      authNavLink.innerHTML = `<i class="fas fa-user"></i> ${userName}`;
+    }
+  }
+});
+</script>
+
+    <script src="protect-pages.js"></script>
+
+</body>
+</html>

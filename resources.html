@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pest Resources - PestGuard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Chatbot Styles */
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            max-width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            z-index: 1000;
+            display: none;
+        }
+
+        .chat-container.active {
+            display: block;
+        }
+
+        .chat-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .chat-box {
+            height: 300px;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fafafa;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bot-message {
+            align-items: flex-start;
+        }
+
+        .user-message {
+            align-items: flex-end;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 5px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .bot-message .message-content {
+            background-color: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message .message-content {
+            background-color: #4CAF50;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: #eee;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 30px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #45a049;
+        }
+
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+
+        .quick-option {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 6px 12px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .quick-option:hover {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .chat-toggle i {
+            font-size: 24px;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            padding: 10px 15px;
+            background-color: #f1f1f1;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #666;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 90%;
+                right: 5%;
+                bottom: 70px;
+            }
+            
+            .chat-box {
+                height: 250px;
+            }
+        }
+
+        /* Dark Theme Styles */
+        .dark-theme {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+
+        .dark-theme .section-title {
+            color: #f0f0f0;
+        }
+
+        .dark-theme .resource-card {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .dark-theme .resource-overlay {
+            background-color: rgba(30, 30, 30, 0.9);
+        }
+
+        .dark-theme .resource-title {
+            color: #66bb6a;
+        }
+
+        .dark-theme .resource-description {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .chat-container {
+            background-color: #1e1e1e;
+        }
+
+        .dark-theme .chat-box {
+            background-color: #2d2d2d;
+        }
+
+        .dark-theme .bot-message .message-content {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .chat-input {
+            background-color: #333;
+        }
+
+        .dark-theme .chat-input input {
+            background-color: #444;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .quick-options {
+            background-color: #333;
+        }
+
+        .dark-theme .quick-option {
+            background-color: #444;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container container">
+            <div class="logo">
+                <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Semicircle Head (lowered closer to body) -->
+                    <path d="M28 26 A4 4 0 0 1 36 26" fill="#4CAF50"/>
+                
+                    <!-- Round Body -->
+                    <circle cx="32" cy="36" r="10" fill="#4CAF50"/>
+                
+                    <!-- Center Line -->
+                    <line x1="32" y1="28" x2="32" y2="48" stroke="black" stroke-width="1.5"/>
+                
+                    <!-- Compact Left Legs -->
+                    <path d="M26 30 Q20 28 20 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 36 Q18 36 18 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M26 42 Q20 44 20 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                
+                    <!-- Compact Right Legs -->
+                    <path d="M38 30 Q44 28 44 26" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 36 Q46 36 46 36" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M38 42 Q44 44 44 46" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                  </svg>
+                <span>PestGuard</span>
+            </div>
+            <nav>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="identify.html" class="nav-link">Identify</a></li>
+                    <li><a href="solutions.html" class="nav-link">Solutions</a></li>
+                    <li><a href="resources.html" class="nav-link active">Resources</a></li>
+                    <li><a href="auth.html" class="nav-link">Login/Sign Up</a></li>
+                    <li><a href="aboutus.html" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Resources Section -->
+    <section class="section" id="resources" style="display: block; padding-top: 120px;">
+        <div class="container">
+            <h2 class="section-title scroll-animation">Educational Resources</h2>
+            <div class="resources-grid">
+                <div class="resource-card scroll-animation">
+                    <img src="Resources/1.png" alt="Pest identification guide" class="resource-image">
+                    <div class="resource-overlay">
+                        <h3 class="resource-title">Six Star Pest Control</h3>
+                        <p class="resource-description">Discover how to identify common pests and protect your home or business.</p>
+                        <a target="_blank" href="https://www.six-star-pest-control.com/pest-identification-guide" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+                <div class="resource-card scroll-animation">
+                    <img src="Resources/2.png" alt="Seasonal pest calendar" class="resource-image">
+                    <div class="resource-overlay">
+                        <h3 class="resource-title">Gaurdian Pest Solution</h3>
+                        <p class="resource-description">Know your enemy. It's the first rule of battle, and it's why we have a board-certified entomologist on staff.</p>
+                        <a target="_blank" href="https://guardian-online.com/pest-guide/" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+                <div class="resource-card scroll-animation">
+                    <img src="Resources/3.png" alt="Eco-friendly pest control" class="resource-image">
+                    <div class="resource-overlay">
+                        <h3 class="resource-title">Seasons of Pest Identification</h3>
+                        <p class="resource-description">While a year has four seasons for people, we believe there are six seasons for pests.</p>
+                        <a target="_blank" href="https://www.orkin.com/home-services/seasons-of-pest-protection" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+                <div class="resource-card scroll-animation">
+                    <img src="Resources/4.png" alt="DIY pest prevention" class="resource-image">
+                    <div class="resource-overlay">
+                        <h3 class="resource-title">DIY Pest Prevention</h3>
+                        <p class="resource-description">Simple home projects to keep pests out and maintain a pest-free environment.</p>
+                        <a target="_blank" href="https://diypestcontrol.com/?srsltid=AfmBOoq3Wu0mLn-s2bjYjjL0yR5K-xcF5fYNw-b6Tt-5OiRMgcJcC3Z0" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+                <div class="resource-card scroll-animation">
+                    <img src="Resources/6.png" alt="Pest control for gardeners" class="resource-image">
+                    <div class="resource-overlay">
+                        <h3 class="resource-title">Pest Control for Gardeners</h3>
+                        <p class="resource-description">Protect your plants while maintaining a healthy garden ecosystem.</p>
+                        <a target="_blank" href="https://learn.eartheasy.com/guides/natural-garden-pest-control/" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+                <div class="resource-card scroll-animation">
+                    <img src="Resources/5.png" alt="Pet safe pest control" class="resource-image">
+                    <div class="resource-overlay">
+                        <h3 class="resource-title">Pet-Safe Pest Management</h3>
+                        <p class="resource-description">Keep your furry friends safe while effectively controlling pests in your home.</p>
+                        <a target="_blank" href="https://cpcindia.in/blog/petsafepestcontrol/" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>About PestGuard</h3>
+                    <p>We're dedicated to helping you identify and manage pests effectively while protecting your home and garden.</p>
+                    <div class="footer-social">
+                        <a target="_blank" href="https://www.facebook.com/share/1ALYRfUUnJ/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a target="_blank" href="https://x.com/?lang=en" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a target="_blank" href="https://www.instagram.com/pest.guard_?igsh=MTd1ZmpndGFkMGF2ag==" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a target="_blank" href="https://in.linkedin.com/" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="identify.html">Identify Pests</a></li>
+                        <li><a href="solutions.html">Solutions</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="auth.html">Login/Sign Up</a></li>
+                        <li><a href="aboutus.html">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@pestguard.com</li>
+                        <li><i class="fas fa-phone"></i>+91 998 754 4262</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Pest Control St, Garden City</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to our newsletter for the latest pest control tips and updates.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your Email" required><br><br>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PestGuard. All rights reserved.</p>
+            </div>
+        </div>
+        <!-- Chatbot Elements -->
+        <div class="chat-container hidden" id="chatContainer">
+            <div class="chat-header">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Pest Expert">
+                <h2>Chat with AI Farmer</h2>
+            </div>
+            
+            <div class="chat-box" id="chatBox">
+                <div class="chat-message bot-message">
+                    <div class="message-content">
+                        Hello! I'm your pest identification assistant. How can I help you today?
+                    </div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            
+            <div class="quick-options">
+                <div class="quick-option" onclick="sendQuickMessage('How to identify bed bugs?')">Bed Bugs</div>
+                <div class="quick-option" onclick="sendQuickMessage('What does a termite look like?')">Termites</div>
+                <div class="quick-option" onclick="sendQuickMessage('How to get rid of ants?')">Ants</div>
+                <div class="quick-option" onclick="sendQuickMessage('What are signs of cockroaches?')">Cockroaches</div>
+                <div class="quick-option" onclick="sendQuickMessage('How to prevent rodents?')">Rodents</div>
+                <div class="quick-option" onclick="sendQuickMessage('Help with spider identification')">Spiders</div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Describe your pest problem..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        
+        <div class="chat-toggle" id="chatToggle" onclick="toggleChat()">
+            <i class="fas fa-bug"></i>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Check for scroll animations
+        window.addEventListener('load', checkScroll);
+        window.addEventListener('scroll', checkScroll);
+        
+        // Chatbot functionality
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            const chatToggle = document.getElementById('chatToggle');
+            
+            chatContainer.classList.toggle('active');
+            chatToggle.innerHTML = chatContainer.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bug"></i>';
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message !== '') {
+                addUserMessage(message);
+                userInput.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate bot response after a delay
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    const botResponse = getBotResponse(message);
+                    addBotMessage(botResponse);
+                    
+                    // Scroll to bottom
+                    const chatBox = document.getElementById('chatBox');
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 1500);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            addUserMessage(message);
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate bot response after a delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const botResponse = getBotResponse(message);
+                addBotMessage(botResponse);
+                
+                // Scroll to bottom
+                const chatBox = document.getElementById('chatBox');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1500);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addUserMessage(message) {
+            const chatBox = document.getElementById('chatBox');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message user-message';
+            messageDiv.innerHTML = `
+                <div class="message-content">${message}</div>
+                <div class="message-time">${timeString}</div>
+            `;
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addBotMessage(message) {
+            const chatBox = document.getElementById('chatBox');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot-message';
+            messageDiv.innerHTML = `
+                <div class="message-content">${message}</div>
+                <div class="message-time">${timeString}</div>
+            `;
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatBox = document.getElementById('chatBox');
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function getBotResponse(userMessage) {
+            // Convert user message to lowercase for easier matching
+            const message = userMessage.toLowerCase();
+            
+            // Pest identification responses
+            if (message.includes('bed bug') || message.includes('bedbug')) {
+                return "Bed bugs are small, oval, brownish insects that feed on blood. Adults are about the size of an apple seed (5-7mm). They often leave small blood stains on sheets and have a musty odor. Look for them in mattress seams, bed frames, and nearby furniture.";
+            } else if (message.includes('termite')) {
+                return "Termites are pale, soft-bodied insects about 1/4 to 1/2 inch long. Worker termites are cream colored, while swarmers are darker with wings. Signs include mud tubes on walls, hollow-sounding wood, and discarded wings near windowsills.";
+            } else if (message.includes('ant')) {
+                return "Ants vary by species but generally have three body parts and bent antennae. Common types include: 1) Carpenter ants (large, black) that damage wood, 2) Odorous house ants (small, brown) that smell when crushed, and 3) Pavement ants (small, dark brown) often seen on sidewalks.";
+            } else if (message.includes('cockroach') || message.includes('roach')) {
+                return "Common cockroaches include: 1) German cockroach (light brown, 1/2-5/8\", two dark stripes), 2) American cockroach (reddish-brown, 1-1.5\", winged), and 3) Oriental cockroach (dark brown/black, 1\"). Signs include droppings (like coffee grounds), egg cases, and a musty odor.";
+            } else if (message.includes('rodent') || message.includes('mouse') || message.includes('rat')) {
+                return "Rodent signs include: 1) Droppings (mouse droppings are 1/4\" rice-shaped, rat droppings are 1/2\" sausage-shaped), 2) Gnaw marks, 3) Grease marks along walls, 4) Scratching noises at night. Mice have pointed noses and large ears, while rats are larger with more blunt noses.";
+            } else if (message.includes('spider')) {
+                return "Most spiders are harmless, but watch for: 1) Black widow (shiny black with red hourglass), 2) Brown recluse (light brown with violin marking). Other common house spiders vary in color and size. Spiders have two body segments and eight legs. Webs indicate activity areas.";
+            } else if (message.includes('identif') || message.includes('what is this')) {
+                return "For identification, please describe: 1) Size (in inches/mm), 2) Color, 3) Shape, 4) Number of legs, 5) Where you found it, and 6) Any damage you've noticed. You can also upload a photo if available (feature coming soon).";
+            } else if (message.includes('get rid of') || message.includes('eliminate') || message.includes('remove')) {
+                return "General pest elimination steps: 1) Identify the pest correctly, 2) Locate entry points and seal them, 3) Remove food/water sources, 4) Use appropriate traps or treatments (varies by pest), 5) Monitor and repeat as needed. For specific solutions, tell me which pest you're dealing with.";
+            } else if (message.includes('prevent') || message.includes('stop')) {
+                return "Pest prevention tips: 1) Seal cracks and openings, 2) Keep food in sealed containers, 3) Fix leaky pipes, 4) Regularly empty trash, 5) Trim vegetation away from buildings, 6) Store firewood away from home, 7) Keep areas clean and clutter-free. Specific pests may need additional measures.";
+            } else if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
+                return "Hello! I'm here to help with all your pest identification and solution needs. You can describe a pest you've seen, ask about signs of infestation, or request prevention tips. How can I assist you today?";
+            } else {
+                // Default response if no specific match
+                return "I'm here to help with pest identification and solutions. Could you please provide more details about: 1) The pest's appearance, 2) Where you found it, and 3) Any problems it's causing? This will help me give you more accurate information.";
+            }
+        }
+
+        // Initialize chat with a welcome message if empty
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatBox = document.getElementById('chatBox');
+            if (chatBox && chatBox.children.length <= 1) { // Only the initial message is present
+                setTimeout(() => {
+                    addBotMessage("You can click the quick options below or type your pest-related question. I can help with identification, solutions, and prevention tips!");
+                }, 1000);
+            }
+        });
+    </script>
+<script>
+// Ensure theme toggle works correctly
+document.addEventListener("DOMContentLoaded", function() {
+  // Apply theme from localStorage
+  const isDarkTheme = localStorage.getItem("theme") === "dark";
+  if (isDarkTheme) {
+    document.body.classList.add("dark-theme");
+  } else {
+    document.body.classList.remove("dark-theme");
+  }
+  
+  // Update icon based on current theme
+  const themeToggle = document.querySelector(".theme-toggle");
+  if (themeToggle) {
+    const icon = themeToggle.querySelector("i");
+    
+    if (isDarkTheme && icon) {
+      icon.classList.remove("fa-moon");
+      icon.classList.add("fa-sun");
+    } else if (icon) {
+      icon.classList.remove("fa-sun");
+      icon.classList.add("fa-moon");
+    }
+    
+    // Add event listener for theme toggle
+    themeToggle.addEventListener("click", function() {
+      document.body.classList.toggle("dark-theme");
+      const toggleIcon = themeToggle.querySelector("i");
+      
+      if (document.body.classList.contains("dark-theme")) {
+        toggleIcon.classList.remove("fa-moon");
+        toggleIcon.classList.add("fa-sun");
+        localStorage.setItem("theme", "dark");
+      } else {
+        toggleIcon.classList.remove("fa-sun");
+        toggleIcon.classList.add("fa-moon");
+        localStorage.setItem("theme", "light");
+      }
+    });
+  }
+  
+  // Update navigation based on login state
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const currentUser = localStorage.getItem("currentUser");
+  
+  if (isLoggedIn && currentUser) {
+    const authNavLink = document.querySelector('.nav-link[href="auth.html"]');
+    if (authNavLink) {
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      const userName = users[currentUser]?.name || "User";
+      authNavLink.innerHTML = `<i class="fas fa-user"></i> ${userName}`;
+    }
+  }
+});
+</script>
+
+    <script src="protect-pages.js"></script>
+</body>
+</html>
